@@ -9,18 +9,15 @@ import sys
 import os
 import csv
 
-reference = ["TetRCG","","A fictitious gene known to cause resistance against tetracycline",
-             29,8,3,60,90.625,88.2352941176,72.5,1.08621066108E-014,6.45209132679E-011,
-             6.45209132679E-011,25,25,1,5.96046447754E-008,1.54972076416E-006]
+reference = ["TetRCG", "", "A fictitious gene known to cause resistance against tetracycline",
+             29, 8, 3, 60, 90.625, 88.2352941176, 72.5, 1.08621066108E-014, 6.45209132679E-011,
+             6.45209132679E-011, 25, 25, 1, 5.96046447754E-008, 1.54972076416E-006]
 
-referencevcf = ["NC_000962", "4013","0","T","C","9999","0","TYPE=snp","GT","False","0","1",
-                "1","1"]
+referencevcf = ["NC_000962", "4013", "0", "T", "C", "9999", "0", "TYPE=snp", "GT", "False", "0", "1",
+                "1", "1"]
 
-
-
-
-for Test in ["1","2","4"]:
-    with open(os.getcwd() + "/Test" + Test + "/Tetracycline_resistance.results.csv" ,"rU") as resfile:
+for Test in ["1", "2", "4"]:
+    with open(os.getcwd() + "/Test" + Test + "/Tetracycline_resistance.results.csv", "rU") as resfile:
         tab = csv.reader(resfile, delimiter=",")
         for i in range(2):
             if i == 0:
@@ -120,7 +117,7 @@ for Test in ["1","2","4"]:
                         print("Not equal at Test %s col 17: %s %s" % (Test, data[17], str(reference[17])))
                         sys.exit(-1)
 
-with open(os.getcwd() + "/mutations_presence_absence.csv" ,"rU") as vcfresfile:
+with open(os.getcwd() + "/mutations_presence_absence.csv", "rU") as vcfresfile:
     tab = csv.reader(vcfresfile, delimiter=",")
     for i in range(2):
         if i == 0:
@@ -134,4 +131,3 @@ with open(os.getcwd() + "/mutations_presence_absence.csv" ,"rU") as vcfresfile:
                 print("Expected: %s" % ",".join(referencevcf))
                 print("VCF conversion did not produce the expected output")
                 sys.exit(-1)
-

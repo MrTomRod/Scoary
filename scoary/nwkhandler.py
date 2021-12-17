@@ -7,7 +7,8 @@ try:
 except ImportError:
     sys.exit("ERROR: Could not import ete3. You need 'ete3' AND 'six' installed to read custom trees.")
 
-def ReadTreeFromFile(filepath):
+
+def read_tree_from_file(filepath):
     """
     Uses ete3 to read a newick tree file, and converts this to a Scoary-readable nested list
     """
@@ -15,13 +16,14 @@ def ReadTreeFromFile(filepath):
         myTree = Tree(filepath)
     except NewickError as e:
         sys.exit("Corrupted or non-existing custom tree file? %s" % e)
-        
+
     myTree.resolve_polytomy(recursive=True)
-    myTreeList, members = RecTree2List(myTree,Members=None)
+    myTreeList, members = recursive_tree_to_list(myTree, Members=None)
 
     return myTreeList, members
 
-def RecTree2List(Tree, Members=None):
+
+def recursive_tree_to_list(Tree, Members=None):
     """
     Recursive function that at each node create a list of the children nodes. Can be nested
     """
@@ -35,6 +37,6 @@ def RecTree2List(Tree, Members=None):
         return str(shavedname), Members
     else:
         for node in Tree._children:
-            mynode, Members = RecTree2List(node, Members)
+            mynode, Members = recursive_tree_to_list(node, Members)
             List.append(mynode)
         return List, Members

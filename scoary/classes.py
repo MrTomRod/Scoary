@@ -12,38 +12,43 @@ try:
 except NameError:
     xrange = range
 
+
 class PimpedFileHandler(logging.FileHandler):
-	"""
-	A filehandler that can create directories if needed.
-	"""
-	def __init__(self, filename, mode='w', encoding=None, delay=0):
-		"""
-		Initiates the filehandler and create dir if it does not exist.
-		"""
-		self.makedir(filename)
-		logging.FileHandler.__init__(self, filename, mode, encoding, delay)
-	
-	def makedir(self, filename):
-		path = os.path.dirname(filename)
-		# Check if dir exists. If not, try to create it. Else, do nothing:
-		if not os.path.isdir(path):
-			try:
-				os.makedirs(path)
-			except OSError as e:
-				sys.exit("CRITICAL: Need write permission to outdir")
-		else: # Dir exists, but might not have permission
-			if not (os.access(path, os.W_OK) and 
-            os.access(path, os.X_OK)):
-				sys.exit("CRITICAL: Need write permission to outdir")
+    """
+    A filehandler that can create directories if needed.
+    """
+
+    def __init__(self, filename, mode='w', encoding=None, delay=0):
+        """
+        Initiates the filehandler and create dir if it does not exist.
+        """
+        self.makedir(filename)
+        logging.FileHandler.__init__(self, filename, mode, encoding, delay)
+
+    def makedir(self, filename):
+        path = os.path.dirname(filename)
+        # Check if dir exists. If not, try to create it. Else, do nothing:
+        if not os.path.isdir(path):
+            try:
+                os.makedirs(path)
+            except OSError as e:
+                sys.exit("CRITICAL: Need write permission to outdir")
+        else:  # Dir exists, but might not have permission
+            if not (os.access(path, os.W_OK) and
+                    os.access(path, os.X_OK)):
+                sys.exit("CRITICAL: Need write permission to outdir")
+
 
 def counted(fn):
     def wrapper(*args, **kwargs):
         wrapper.called += 1
         return fn(*args, **kwargs)
+
     wrapper.called = 0
     wrapper.__name__ = fn.__name__
     return wrapper
-    
+
+
 class ScoaryLogger(logging.Logger):
 
     def __init__(self, name, level=logging.DEBUG):
@@ -64,11 +69,13 @@ class ScoaryLogger(logging.Logger):
     @counted
     def error(self, *args, **kwargs):
         super(ScoaryLogger, self).warning(*args, **kwargs)
-        
+
+
 class Matrix:
     """
     A matrix stored as a list of lists
     """
+
     def __init__(self, dim, elm=sys.maxsize):
         """
         Builds empty nxn matrix
@@ -98,6 +105,7 @@ class QuadTree:
     """
     A basic QuadTree with names
     """
+
     def __init__(self, dim, names=None):
         """
         Constructs a quad tree of dimension dim and fills it with 0's
@@ -112,7 +120,7 @@ class QuadTree:
         while n > 1:
             n += (n % 2)
             self.level.append(Matrix(n))
-            n = (n+1) // 2
+            n = (n + 1) // 2
 
     def get_elm(self, i, j):
         """
@@ -175,12 +183,12 @@ class QuadTree:
         coordinates
         """
         # Need even numbers
-        i = (i//2) * 2
-        j = (j//2) * 2
+        i = (i // 2) * 2
+        j = (j // 2) * 2
         return min((l[i][j], i, j),
-                   (l[i+1][j], i+1, j),
-                   (l[i][j+1], i, j+1),
-                   (l[i+1][j+1], i+1, j+1))
+                   (l[i + 1][j], i + 1, j),
+                   (l[i][j + 1], i, j + 1),
+                   (l[i + 1][j + 1], i + 1, j + 1))
 
     def quad_min(self, i, j, l):
         """
@@ -207,6 +215,7 @@ class PhyloTree:
     4. Free path to ab.
     5. No free path.
     """
+
     def __init__(self, leftnode, rightnode, GTC):
         """
         Constructs a phylotree and links it to its left and right nodes
@@ -286,7 +295,7 @@ class PhyloTree:
         Possible_conditions = set(["AB", "Ab", "aB", "ab"])
         Possible_conditions.remove(condition)
         # Now we have a list of the elements that are NOT condition:
-        Otherconditions = list(Possible_conditions)  
+        Otherconditions = list(Possible_conditions)
         max_pairs_1 = -1
         max_pairs_2 = -1
         max_pairs_3 = -1
@@ -317,95 +326,95 @@ class PhyloTree:
         max_antipairs_8 = -1
         max_antipairs_9 = -1
 
-        if (self.leftnode.maxvalues[condition] > -1 and 
-        self.rightnode.maxvalues["0"] > -1):
-            max_pairs_1 = (self.leftnode.maxvalues[condition] + 
-                self.rightnode.maxvalues["0"])
-            max_propairs_1 = (self.leftnode.max_propairs[condition] + 
-                self.rightnode.max_propairs["0"])
-            max_antipairs_1 = (self.leftnode.max_antipairs[condition] + 
-                self.rightnode.max_antipairs["0"])
+        if (self.leftnode.maxvalues[condition] > -1 and
+                self.rightnode.maxvalues["0"] > -1):
+            max_pairs_1 = (self.leftnode.maxvalues[condition] +
+                           self.rightnode.maxvalues["0"])
+            max_propairs_1 = (self.leftnode.max_propairs[condition] +
+                              self.rightnode.max_propairs["0"])
+            max_antipairs_1 = (self.leftnode.max_antipairs[condition] +
+                               self.rightnode.max_antipairs["0"])
 
-        if (self.leftnode.maxvalues[condition] > -1 and 
-        self.rightnode.maxvalues[Otherconditions[0]] > -1):
-            max_pairs_2 = (self.leftnode.maxvalues[condition] + 
-                self.rightnode.maxvalues[Otherconditions[0]])
-            max_propairs_2 = (self.leftnode.max_propairs[condition] + 
-                self.rightnode.max_propairs[Otherconditions[0]])
-            max_antipairs_2 = (self.leftnode.max_antipairs[condition] + 
-                self.rightnode.max_antipairs[Otherconditions[0]])
+        if (self.leftnode.maxvalues[condition] > -1 and
+                self.rightnode.maxvalues[Otherconditions[0]] > -1):
+            max_pairs_2 = (self.leftnode.maxvalues[condition] +
+                           self.rightnode.maxvalues[Otherconditions[0]])
+            max_propairs_2 = (self.leftnode.max_propairs[condition] +
+                              self.rightnode.max_propairs[Otherconditions[0]])
+            max_antipairs_2 = (self.leftnode.max_antipairs[condition] +
+                               self.rightnode.max_antipairs[Otherconditions[0]])
 
-        if (self.leftnode.maxvalues[condition] > -1 and 
-        self.rightnode.maxvalues[Otherconditions[1]] > -1):
-            max_pairs_3 = (self.leftnode.maxvalues[condition] + 
-                self.rightnode.maxvalues[Otherconditions[1]])
-            max_propairs_3 = (self.leftnode.max_propairs[condition] + 
-                self.rightnode.max_propairs[Otherconditions[1]])
-            max_antipairs_3 = (self.leftnode.max_antipairs[condition] + 
-                self.rightnode.max_antipairs[Otherconditions[1]])
+        if (self.leftnode.maxvalues[condition] > -1 and
+                self.rightnode.maxvalues[Otherconditions[1]] > -1):
+            max_pairs_3 = (self.leftnode.maxvalues[condition] +
+                           self.rightnode.maxvalues[Otherconditions[1]])
+            max_propairs_3 = (self.leftnode.max_propairs[condition] +
+                              self.rightnode.max_propairs[Otherconditions[1]])
+            max_antipairs_3 = (self.leftnode.max_antipairs[condition] +
+                               self.rightnode.max_antipairs[Otherconditions[1]])
 
-        if (self.leftnode.maxvalues[condition] > -1 and 
-        self.rightnode.maxvalues[Otherconditions[2]] > -1):
-            max_pairs_4 = (self.leftnode.maxvalues[condition] + 
-                self.rightnode.maxvalues[Otherconditions[2]])
-            max_propairs_4 = (self.leftnode.max_propairs[condition] + 
-                self.rightnode.max_propairs[Otherconditions[2]])
-            max_antipairs_4 = (self.leftnode.max_antipairs[condition] + 
-                self.rightnode.max_antipairs[Otherconditions[2]])
+        if (self.leftnode.maxvalues[condition] > -1 and
+                self.rightnode.maxvalues[Otherconditions[2]] > -1):
+            max_pairs_4 = (self.leftnode.maxvalues[condition] +
+                           self.rightnode.maxvalues[Otherconditions[2]])
+            max_propairs_4 = (self.leftnode.max_propairs[condition] +
+                              self.rightnode.max_propairs[Otherconditions[2]])
+            max_antipairs_4 = (self.leftnode.max_antipairs[condition] +
+                               self.rightnode.max_antipairs[Otherconditions[2]])
 
-        if (self.leftnode.maxvalues[condition] > -1 and 
-        self.rightnode.maxvalues[condition] > -1):
-            max_pairs_5 = (self.leftnode.maxvalues[condition] + 
-                self.rightnode.maxvalues[condition])
-            max_propairs_5 = (self.leftnode.max_propairs[condition] + 
-                self.rightnode.max_propairs[condition])
-            max_antipairs_5 = (self.leftnode.max_antipairs[condition] + 
-                self.rightnode.max_antipairs[condition])
+        if (self.leftnode.maxvalues[condition] > -1 and
+                self.rightnode.maxvalues[condition] > -1):
+            max_pairs_5 = (self.leftnode.maxvalues[condition] +
+                           self.rightnode.maxvalues[condition])
+            max_propairs_5 = (self.leftnode.max_propairs[condition] +
+                              self.rightnode.max_propairs[condition])
+            max_antipairs_5 = (self.leftnode.max_antipairs[condition] +
+                               self.rightnode.max_antipairs[condition])
 
-        if (self.leftnode.maxvalues["0"] > -1 and 
-        self.rightnode.maxvalues[condition] > -1):
-            max_pairs_6 = (self.leftnode.maxvalues["0"] + 
-                self.rightnode.maxvalues[condition])
-            max_propairs_6 = (self.leftnode.max_propairs["0"] + 
-                self.rightnode.max_propairs[condition])
-            max_antipairs_6 = (self.leftnode.max_antipairs["0"] + 
-                self.rightnode.max_antipairs[condition])
+        if (self.leftnode.maxvalues["0"] > -1 and
+                self.rightnode.maxvalues[condition] > -1):
+            max_pairs_6 = (self.leftnode.maxvalues["0"] +
+                           self.rightnode.maxvalues[condition])
+            max_propairs_6 = (self.leftnode.max_propairs["0"] +
+                              self.rightnode.max_propairs[condition])
+            max_antipairs_6 = (self.leftnode.max_antipairs["0"] +
+                               self.rightnode.max_antipairs[condition])
 
-        if (self.leftnode.maxvalues[Otherconditions[0]] > -1 and 
-        self.rightnode.maxvalues[condition] > -1):
+        if (self.leftnode.maxvalues[Otherconditions[0]] > -1 and
+                self.rightnode.maxvalues[condition] > -1):
             max_pairs_7 = (self.leftnode.maxvalues[Otherconditions[0]] +
-                self.rightnode.maxvalues[condition])
+                           self.rightnode.maxvalues[condition])
             max_propairs_7 = \
-                (self.leftnode.max_propairs[Otherconditions[0]] + 
-                self.rightnode.max_propairs[condition])
+                (self.leftnode.max_propairs[Otherconditions[0]] +
+                 self.rightnode.max_propairs[condition])
             max_antipairs_7 = \
-                (self.leftnode.max_antipairs[Otherconditions[0]] + 
-                self.rightnode.max_antipairs[condition])
+                (self.leftnode.max_antipairs[Otherconditions[0]] +
+                 self.rightnode.max_antipairs[condition])
 
-        if (self.leftnode.maxvalues[Otherconditions[1]] > -1 and 
-        self.rightnode.maxvalues[condition] > -1):
+        if (self.leftnode.maxvalues[Otherconditions[1]] > -1 and
+                self.rightnode.maxvalues[condition] > -1):
             max_pairs_8 = (self.leftnode.maxvalues[Otherconditions[1]] +
-                self.rightnode.maxvalues[condition])
+                           self.rightnode.maxvalues[condition])
             max_propairs_8 = \
-                (self.leftnode.max_propairs[Otherconditions[1]] + 
-                self.rightnode.max_propairs[condition])
+                (self.leftnode.max_propairs[Otherconditions[1]] +
+                 self.rightnode.max_propairs[condition])
             max_antipairs_8 = \
-                (self.leftnode.max_antipairs[Otherconditions[1]] + 
-                self.rightnode.max_antipairs[condition])
+                (self.leftnode.max_antipairs[Otherconditions[1]] +
+                 self.rightnode.max_antipairs[condition])
 
         if (self.leftnode.maxvalues[Otherconditions[2]] > -1 and
-        self.rightnode.maxvalues[condition] > -1):
+                self.rightnode.maxvalues[condition] > -1):
             max_pairs_9 = (self.leftnode.maxvalues[Otherconditions[2]] +
-                self.rightnode.maxvalues[condition])
+                           self.rightnode.maxvalues[condition])
             max_propairs_9 = \
-                (self.leftnode.max_propairs[Otherconditions[2]] + 
-                self.rightnode.max_propairs[condition])
+                (self.leftnode.max_propairs[Otherconditions[2]] +
+                 self.rightnode.max_propairs[condition])
             max_antipairs_9 = \
-                (self.leftnode.max_antipairs[Otherconditions[2]] + 
-                self.rightnode.max_antipairs[condition])
+                (self.leftnode.max_antipairs[Otherconditions[2]] +
+                 self.rightnode.max_antipairs[condition])
 
-        max_pairs = max(max_pairs_1, max_pairs_2, max_pairs_3, 
-                        max_pairs_4, max_pairs_5, max_pairs_6, 
+        max_pairs = max(max_pairs_1, max_pairs_2, max_pairs_3,
+                        max_pairs_4, max_pairs_5, max_pairs_6,
                         max_pairs_7, max_pairs_8, max_pairs_9)
 
         # Calculate maximum number of propairs, given a maxmimum number 
@@ -489,53 +498,53 @@ class PhyloTree:
         max_antipairs_1001 = -1
         max_antipairs_0110 = -1
 
-        if (self.leftnode.maxvalues["0"] > -1 and 
-        self.rightnode.maxvalues["0"] > -1):
-            max_pairs_nofree = (self.leftnode.maxvalues["0"] + 
-                self.rightnode.maxvalues["0"])
-            max_propairs_nofree = (self.leftnode.max_propairs["0"] + 
-                self.rightnode.max_propairs["0"])
-            max_antipairs_nofree = (self.leftnode.max_antipairs["0"] + 
-                self.rightnode.max_antipairs["0"])
+        if (self.leftnode.maxvalues["0"] > -1 and
+                self.rightnode.maxvalues["0"] > -1):
+            max_pairs_nofree = (self.leftnode.maxvalues["0"] +
+                                self.rightnode.maxvalues["0"])
+            max_propairs_nofree = (self.leftnode.max_propairs["0"] +
+                                   self.rightnode.max_propairs["0"])
+            max_antipairs_nofree = (self.leftnode.max_antipairs["0"] +
+                                    self.rightnode.max_antipairs["0"])
 
-        if (self.leftnode.maxvalues["AB"] > -1 and 
-        self.rightnode.maxvalues["ab"] > -1):
-            max_pairs_1100 = (self.leftnode.maxvalues["AB"] + 
-                self.rightnode.maxvalues["ab"] + 1)
-            max_propairs_1100 = (self.leftnode.max_propairs["AB"] + 
-                self.rightnode.max_propairs["ab"])
-            max_antipairs_1100 = (self.leftnode.max_antipairs["AB"] + 
-                self.rightnode.max_antipairs["ab"])
+        if (self.leftnode.maxvalues["AB"] > -1 and
+                self.rightnode.maxvalues["ab"] > -1):
+            max_pairs_1100 = (self.leftnode.maxvalues["AB"] +
+                              self.rightnode.maxvalues["ab"] + 1)
+            max_propairs_1100 = (self.leftnode.max_propairs["AB"] +
+                                 self.rightnode.max_propairs["ab"])
+            max_antipairs_1100 = (self.leftnode.max_antipairs["AB"] +
+                                  self.rightnode.max_antipairs["ab"])
             max_propairs_1100 += 1
 
-        if (self.leftnode.maxvalues["ab"] > -1 and 
-        self.rightnode.maxvalues["AB"] > -1):
-            max_pairs_0011 = (self.leftnode.maxvalues["ab"] + 
-                self.rightnode.maxvalues["AB"] + 1)
-            max_propairs_0011 = (self.leftnode.max_propairs["ab"] + 
-                self.rightnode.max_propairs["AB"])
-            max_antipairs_0011 = (self.leftnode.max_antipairs["ab"] + 
-                self.rightnode.max_antipairs["AB"])
+        if (self.leftnode.maxvalues["ab"] > -1 and
+                self.rightnode.maxvalues["AB"] > -1):
+            max_pairs_0011 = (self.leftnode.maxvalues["ab"] +
+                              self.rightnode.maxvalues["AB"] + 1)
+            max_propairs_0011 = (self.leftnode.max_propairs["ab"] +
+                                 self.rightnode.max_propairs["AB"])
+            max_antipairs_0011 = (self.leftnode.max_antipairs["ab"] +
+                                  self.rightnode.max_antipairs["AB"])
             max_propairs_0011 += 1
 
-        if (self.leftnode.maxvalues["Ab"] > -1 and 
-        self.rightnode.maxvalues["aB"] > -1):
-            max_pairs_1001 = (self.leftnode.maxvalues["Ab"] + 
-            self.rightnode.maxvalues["aB"] + 1)
-            max_propairs_1001 = (self.leftnode.max_propairs["Ab"] + 
-            self.rightnode.max_propairs["aB"])
-            max_antipairs_1001 = (self.leftnode.max_antipairs["Ab"] + 
-            self.rightnode.max_antipairs["aB"])
+        if (self.leftnode.maxvalues["Ab"] > -1 and
+                self.rightnode.maxvalues["aB"] > -1):
+            max_pairs_1001 = (self.leftnode.maxvalues["Ab"] +
+                              self.rightnode.maxvalues["aB"] + 1)
+            max_propairs_1001 = (self.leftnode.max_propairs["Ab"] +
+                                 self.rightnode.max_propairs["aB"])
+            max_antipairs_1001 = (self.leftnode.max_antipairs["Ab"] +
+                                  self.rightnode.max_antipairs["aB"])
             max_antipairs_1001 += 1
 
-        if (self.leftnode.maxvalues["aB"] > -1 and 
-        self.rightnode.maxvalues["Ab"] > -1):
-            max_pairs_0110 = (self.leftnode.maxvalues["aB"] + 
-                self.rightnode.maxvalues["Ab"] + 1)
-            max_propairs_0110 = (self.leftnode.max_propairs["aB"] + 
-                self.rightnode.max_propairs["Ab"])
-            max_antipairs_0110 = (self.leftnode.max_antipairs["aB"] + 
-                self.rightnode.max_antipairs["Ab"])
+        if (self.leftnode.maxvalues["aB"] > -1 and
+                self.rightnode.maxvalues["Ab"] > -1):
+            max_pairs_0110 = (self.leftnode.maxvalues["aB"] +
+                              self.rightnode.maxvalues["Ab"] + 1)
+            max_propairs_0110 = (self.leftnode.max_propairs["aB"] +
+                                 self.rightnode.max_propairs["Ab"])
+            max_antipairs_0110 = (self.leftnode.max_antipairs["aB"] +
+                                  self.rightnode.max_antipairs["Ab"])
             max_antipairs_0110 += 1
 
         max_pairs = max(max_pairs_nofree, max_pairs_1100,
@@ -577,6 +586,7 @@ class Tip:
     A class that references a single tip, which can only be AB, Ab, aB, 
     ab, A- or a-
     """
+
     def __init__(self, tipvalue):
         """
         Sets up the tip
@@ -590,6 +600,7 @@ class Tip:
                 self.maxvalues[condition] = -1
         self.max_propairs = {k: v for (k, v) in self.maxvalues.items()}
         self.max_antipairs = {k: v for (k, v) in self.maxvalues.items()}
+
 
 if __name__ == '__main__':
     pass
