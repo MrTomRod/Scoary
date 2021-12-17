@@ -655,21 +655,21 @@ def populate_quad_tree_with_distances(TDM):
     """
     Takes a triangular distance matrix, creates a quadtree and populates
     it with the hamming distances between isolates.
-    First creates a Quadmatrix, so not really optimized.
+    First creates a quadmatrix, so not really optimized.
     """
-    Quadmatrix = Matrix(dim=len(TDM["matrix"]))
-    for i in range(Quadmatrix.dim):
-        for j in range(i, Quadmatrix.dim):
+    quadmatrix = Matrix(dim=len(TDM["matrix"]))
+    for i in range(quadmatrix.dim):
+        for j in range(i, quadmatrix.dim):
             try:
-                Quadmatrix[i][j] = \
-                    Quadmatrix[j][i] = TDM["matrix"][i][(j - i)]
+                quadmatrix[i][j] = \
+                    quadmatrix[j][i] = TDM["matrix"][i][(j - i)]
             except IndexError:
                 sys.exit("There was an error trying to populate the "
                          "Quadtree with pairwise distances. Please "
                          "report this bug to olbb@fhi.no")
-    populated_quadtree = QuadTree(Quadmatrix.dim, names=TDM["names"])
-    for i in range(Quadmatrix.dim):
-        populated_quadtree.insert_row(i, Quadmatrix[i])
+    populated_quadtree = QuadTree(quadmatrix.dim, names=TDM["names"])
+    for i in range(quadmatrix.dim):
+        populated_quadtree.insert_row(i, quadmatrix[i])
     return populated_quadtree
 
 
@@ -1169,7 +1169,7 @@ def store_trait_results(trait, traitname, max_hits, cutoffs, upgmatree,
             currentgene = sort_instructions[x]
 
             # Final check that the currentgene passes all filters
-            if all([Filteredresults[currentgene]\
+            if all([Filteredresults[currentgene] \
                             [cut_possibilities[method]] <= cutoffs[method]
                     for method in cutoffs]):
                 # Split up identifier if it is a compound id
@@ -1652,8 +1652,10 @@ def parse_scoary_args():
                                  'restrict analyzes to these.')
     inputgroup.add_argument('--boschloo',
                             help='Perform Boschloo\'s test instead of '
-                                 'Fisher\'s',
-                            default=False)
+                                 'Fisher\'s. Default = False',
+                            type=lambda x: x.lower() == 'true',
+                            default=False
+                            )
 
     outputgroup = parser.add_argument_group('Output options')
     outputgroup.add_argument('-o', '--outdir',
