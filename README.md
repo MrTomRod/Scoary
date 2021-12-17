@@ -202,6 +202,7 @@ optional arguments:
                         those in the trait table
   -o OUTDIR, --outdir OUTDIR
                         Directory to place output files. Default = .
+  --boschloo BOSCHLOO   Perform Boschloo's test instead of Fisher's
   -p P_VALUE_CUTOFF [P_VALUE_CUTOFF ...], --p_value_cutoff P_VALUE_CUTOFF [P_VALUE_CUTOFF ...]
                         P-value cut-off / alpha level. For Fishers,
                         Bonferronis, and Benjamini-Hochbergs tests, SCOARY
